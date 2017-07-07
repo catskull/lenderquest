@@ -15,6 +15,7 @@ counter = 0
 block_waiter = 7
 block_counter = 5
 block_space = 32
+sprite = 1
 
 -- character types
 -- 1: player
@@ -84,7 +85,12 @@ end
 
 -- draw_character()
 function draw_character(char)
-  spr(char.type, char.x, char.y)
+  if (sprite == 1) then
+    sprite = 4
+  else
+    sprite = 1
+  end
+  spr(sprite, char.x, char.y)
 end
 
 -- move_character()
@@ -528,4 +534,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-

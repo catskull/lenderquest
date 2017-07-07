@@ -1,10 +1,33 @@
 pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
+-- globals
+max_players=1
+
+-- create_player
+function create_player(x,y)
+  if count(num_player
+end
+
+-- create_char
+function create_char(s,x,y)
+  if count(characters) <
+      max_char) then
+    local c={}
+    c.sprite=s
+    c.x=63
+    c.y=63
+    add(characters,c)
+    return c
+  end
+  
+  return false
+end
+
 -- _init()
 function _init()
-  x=63
-  y=63
+  music(0)
+  create_char(,63,63)
 end
 
 -- _update()

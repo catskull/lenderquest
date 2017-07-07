@@ -123,7 +123,7 @@ function move_player(char)
   y = y + ay
 
   -- collision
-  if not solid(x + char.w, y + char.h) then
+  if not solid(x, x + char.w, y, y + char.h) then
     char.ax = ax
     char.ay = ay
     char.x = x + ax
@@ -133,24 +133,33 @@ function move_player(char)
       touching = true
       sfx(2)
     end
+
     char.ax = 0
     char.ay = 0
   end
 end
 
 -- solid()
-function solid(x, y)
+function solid(x0, x1, y0, y1)
+  local collision = false
+
   -- Boundries
-  if y >= 127 then
-    return true
+  if y1 >= 127 then
+    collision = true
   end
 
   -- Blocks
-  for k, v in pairs(blocks) do
-    if v.y <= y then
-      return true
+  if collision == false then
+    for k, v in pairs(blocks) do
+      if x1 > (v.x + v.w) and x0 < (v.x + v.h) then
+        if y0 >= v.y then
+          collision = true
+        end
+      end
     end
   end
+
+  return collision
 end
 
 function draw_title_screen()

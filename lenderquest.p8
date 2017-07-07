@@ -50,7 +50,7 @@ function create_char(t, x, y)
     c.h = 8
     c.ax = 0
     c.ay = 0
-    c.jump = 5.0
+    c.jump = 3.0
     c.gravity = 0.32
     add(characters, c)
     return c

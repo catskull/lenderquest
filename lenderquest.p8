@@ -11,6 +11,13 @@ counter = 0
 -- character types
 -- 1: player
 
+-- start_game
+function start_game()
+  gamestarted = true
+
+  create_player(63, 63)
+end
+
 -- create_player
 function create_player(x, y)
   if count(players) < max_players then
@@ -112,16 +119,14 @@ function _init()
   cls()
 
   music(0)
-
-  create_player(63, 63)
-
   draw_title_screen()
-
 end
 
 -- _update()
 function _update()
-  foreach(characters, move_character)
+  if gamestarted then
+    foreach(characters, move_character)
+  end
 end
 
 -- _draw()
@@ -132,7 +137,7 @@ function _draw()
     foreach(characters, draw_character)
   elseif (btn(4)) then
     sfx(4)
-    gamestarted = true
+    start_game()
   else
     blink_text()
   end

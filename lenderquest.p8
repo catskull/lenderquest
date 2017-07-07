@@ -1,7 +1,26 @@
 pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
-print ("hello")
+-- _init()
+function _init()
+  x=63
+  y=63
+end
+
+-- _update()
+function _update()
+  if btn(o) then x=x-1 end
+  if btn(1) then x=x+1 end
+  if btn(2) then y=y-1 end
+  if btn(3) then y=y+1 end
+end
+
+-- _draw()
+function _draw()
+  cls()
+  spr(1,x,y)
+end
+
 __gfx__
 00000000000000003b33b3b300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000066666603333333300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

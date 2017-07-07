@@ -44,6 +44,8 @@ function create_char(t, x, y)
     c.type = t
     c.x = x
     c.y = y
+    c.w = 8
+    c.h = 8
     c.ax = 0
     c.ay = 0
     c.jump = 5.0
@@ -59,6 +61,8 @@ function create_block(x)
   local block = {}
   block.x = x
   block.y = 100
+  block.w = 8
+  block.h = 8
   block.type = 2
   add(blocks, block)
   return block
@@ -89,6 +93,9 @@ end
 
 -- move_player()
 function move_player(char)
+  local x = char.x
+  local y = char.y
+
   -- jump
   if btn(2, a) then
     if char.ay == 0 then
@@ -100,12 +107,29 @@ function move_player(char)
   char.ay = char.ay + char.gravity
 
   -- Movement
-  char.y = char.y + char.ay
+  y = char.y + char.ay
 
-  -- Boundries
-  if char.y >= (127 - 8) then
-    char.y = (127 - 8) ;
+  -- collision
+  if solid(x + char.w, y + char.h) then
     char.ay = 0
+  else
+    char.x = x
+    char.y = y
+  end
+end
+
+-- solid()
+function solid(x, y)
+  -- Boundries
+  if y >= 127 then
+    return true
+  end
+
+  -- Blocks
+  for k, v in pairs(blocks) do
+    if v.y <= y then
+      return true
+    end
   end
 end
 
@@ -146,6 +170,7 @@ function _init()
   players = {}
   characters = {}
   blocks = {}
+
   cls()
 
   music(0)

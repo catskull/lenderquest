@@ -8,23 +8,30 @@ gamestarted = false
 text_color = 7
 counter = 0
 
+-- character types
+-- 1: player
+
 -- create_player
 function create_player(x, y)
   if count(players) < max_players then
     local p = {}
-    p.char = create_char(1, 63, 63)
+    p.char = create_char(1, x, y)
     p.score = 0;
     add(players, p)
   end
 end
 
 -- create_char
-function create_char(s, x, y)
+function create_char(t, x, y)
   if count(characters) < max_characters then
     local c = {}
-    c.sprite = s
-    c.x = 63
-    c.y = 63
+    c.type = t 
+    c.x = x
+    c.y = y
+    c.ax = 0
+    c.ay = 0
+    c.jump = 2.0
+    c.gravity = 0.32
     add(characters, c)
     return c
   end
@@ -32,9 +39,38 @@ function create_char(s, x, y)
   return false
 end
 
--- draw_players()
+-- draw_character()
 function draw_character(char)
-  spr(char.sprite, char.x, char.y)
+  spr(char.type, char.x, char.y)
+end
+
+-- move_character()
+function move_character(char)
+  if char.type == 1 then
+    move_player(char)
+  end
+end
+
+-- move_player()
+function move_player(char)
+  -- jump
+  if btn(2, a) then
+    if char.ay <= 0 then
+      char.ay = char.ay - char.jump
+    end
+  end
+
+  -- gravity
+  char.ay = char.ay + char.gravity
+
+  -- Movement
+  char.y = char.y + char.ay
+
+  -- Boundries
+  if char.y >= 119 then
+    char.y = 119;
+    char.ay = 0
+  end
 end
 
 function draw_title_screen()
@@ -85,7 +121,7 @@ end
 
 -- _update()
 function _update()
-  if btn(2, a) then jump(characters[0]) end
+  foreach(characters, move_character)
 end
 
 -- _draw()

@@ -7,6 +7,7 @@ max_characters = 1
 gamestarted = false
 text_color = 7
 counter = 0
+block_counter = 7
 
 -- character types
 -- 1: player
@@ -15,7 +16,11 @@ counter = 0
 function start_game()
   gamestarted = true
 
-  create_player(63, 63)
+  create_player(20, 92)
+
+  for i = 0, 16 do
+    create_block(i * 8)
+  end
 end
 
 -- create_player
@@ -32,7 +37,7 @@ end
 function create_char(t, x, y)
   if count(characters) < max_characters then
     local c = {}
-    c.type = t 
+    c.type = t
     c.x = x
     c.y = y
     c.ax = 0
@@ -44,6 +49,26 @@ function create_char(t, x, y)
   end
 
   return false
+end
+
+function create_block(x)
+  local block = {}
+  block.x = x
+  block.y = 100
+  block.type = 2
+  add(blocks, block)
+  return block
+end
+
+function draw_block(block)
+  spr(block.type, block.x, block.y)
+end
+
+function move_block(block)
+  block.x -= 1
+  if (block.x < -7) then
+    del(blocks, block)
+  end
 end
 
 -- draw_character()
@@ -62,7 +87,7 @@ end
 function move_player(char)
   -- jump
   if btn(2, a) then
-    if char.ay <= 0 then
+    if char.ay == 0 then
       char.ay = char.ay - char.jump
     end
   end
@@ -116,6 +141,7 @@ end
 function _init()
   players = {}
   characters = {}
+  blocks = {}
   cls()
 
   music(0)
@@ -125,7 +151,13 @@ end
 -- _update()
 function _update()
   if gamestarted then
+    block_counter -= 1
     foreach(characters, move_character)
+    foreach(blocks, move_block)
+    if (block_counter < 0) then
+      create_block(128)
+      block_counter = 7
+    end
   end
 end
 
@@ -133,8 +165,8 @@ end
 function _draw()
   if (gamestarted) then
     cls()
-
     foreach(characters, draw_character)
+    foreach(blocks, draw_block)
   elseif (btn(4)) then
     sfx(4)
     start_game()
@@ -439,4 +471,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-

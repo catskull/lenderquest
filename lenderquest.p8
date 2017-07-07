@@ -95,26 +95,31 @@ end
 function move_player(char)
   local x = char.x
   local y = char.y
+  local ax = char.ax
+  local ay = char.ay
 
   -- jump
   if btn(2, a) then
-    if char.ay == 0 then
-      char.ay = char.ay - char.jump
+    if ay == 0 then
+      ay = ay - char.jump
     end
   end
 
   -- gravity
-  char.ay = char.ay + char.gravity
+  ay = ay + char.gravity
 
   -- Movement
-  y = char.y + char.ay
+  y = y + ay
 
   -- collision
-  if solid(x + char.w, y + char.h) then
-    char.ay = 0
+  if not solid(x + char.w, y + char.h) then
+    char.ax = ax
+    char.ay = ay
+    char.x = x + ax
+    char.y = y + ay
   else
-    char.x = x
-    char.y = y
+    char.ax = 0
+    char.ay = 0
   end
 end
 

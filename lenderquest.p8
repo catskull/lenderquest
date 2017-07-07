@@ -103,6 +103,7 @@ function move_player(char)
   -- jump
   if btn(2, a) then
     if ay == 0 then
+      sfx(1)
       ay = ay - char.jump
     end
   end
@@ -172,6 +173,24 @@ function blink_text()
   end
 end
 
+function draw_blocks()
+  block_waiter -= 1
+  if (block_space < 0) then
+    if (block_counter > 0) then
+      if (block_waiter < 0) then
+        block_counter -= 1
+        create_block(128)
+        block_waiter = 7
+      end
+    else
+      block_space = rnd(32) + 8
+    end
+  else
+    block_space -= 1
+    block_counter = rnd(4) + 4
+  end
+end
+
 -- _init()
 function _init()
   players = {}
@@ -187,23 +206,9 @@ end
 -- _update()
 function _update()
   if (gamestarted) then
-    block_waiter -= 1
     foreach(characters, move_character)
     foreach(blocks, move_block)
-    if (block_space < 0) then
-      if (block_counter > 0) then
-        if (block_waiter < 0) then
-          block_counter -= 1
-          create_block(128)
-          block_waiter = 7
-        end
-      else
-        block_space = rnd(32) + 8
-      end
-    else
-      block_space -= 1
-      block_counter = rnd(4) + 4
-    end
+    draw_blocks()
   end
 end
 

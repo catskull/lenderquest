@@ -29,6 +29,11 @@ function create_char(s, x, y)
   return false
 end
 
+-- draw_players()
+function draw_character(char)
+  spr(char.sprite, char.x, char.y)
+end
+
 -- _init()
 function _init()
   players = {}
@@ -41,15 +46,14 @@ end
 
 -- _update()
 function _update()
-  if btn(o) then x=x-1 end
-  if btn(1) then x=x+1 end
-  if btn(2) then y=y-1 end
-  if btn(3) then y=y+1 end
+  if btn(2, a) then jump(characters[0]) end
 end
 
 -- _draw()
 function _draw()
   cls()
+
+  foreach(characters, draw_character)
 end
 
 __gfx__

@@ -52,7 +52,7 @@ function create_char(t, x, y)
     c.h = 8
     c.ax = 0
     c.ay = 0
-    c.jump = 3.0
+    c.jump = 4.0
     c.gravity = 0.32
     add(characters, c)
     return c
@@ -195,7 +195,7 @@ function draw_blocks()
         block_waiter = 7
       end
     else
-      block_space = rnd(32) + 8
+      block_space = rnd(8) + 16
     end
   else
     block_space -= 1

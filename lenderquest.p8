@@ -2,22 +2,27 @@ pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
 -- globals
-max_players=1
+max_players = 1
+max_characters = 1
 
 -- create_player
-function create_player(x,y)
-  if count(num_player
+function create_player(x, y)
+  if count(players) < max_players then
+    local p = {}
+    p.char = create_char(1, 63, 63)
+    p.score = 0;
+    add(players, p)
+  end
 end
 
 -- create_char
-function create_char(s,x,y)
-  if count(characters) <
-      max_char) then
-    local c={}
-    c.sprite=s
-    c.x=63
-    c.y=63
-    add(characters,c)
+function create_char(s, x, y)
+  if count(characters) < max_characters then
+    local c = {}
+    c.sprite = s
+    c.x = 63
+    c.y = 63
+    add(characters, c)
     return c
   end
   
@@ -26,8 +31,12 @@ end
 
 -- _init()
 function _init()
+  players = {}
+  characters = {}
+
   music(0)
-  create_char(,63,63)
+  
+  create_player(63, 63)
 end
 
 -- _update()
@@ -41,7 +50,6 @@ end
 -- _draw()
 function _draw()
   cls()
-  spr(1,x,y)
 end
 
 __gfx__

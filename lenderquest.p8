@@ -1,11 +1,15 @@
 pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
--- globals
+-- config
 max_players = 1
 max_characters = 1
-gamestarted = false
 text_color = 7
+
+-- flags
+gamestarted = false
+
+-- globals
 counter = 0
 
 -- character types
@@ -37,7 +41,7 @@ function create_char(t, x, y)
     c.y = y
     c.ax = 0
     c.ay = 0
-    c.jump = 2.0
+    c.jump = 5.0
     c.gravity = 0.32
     add(characters, c)
     return c
@@ -62,7 +66,7 @@ end
 function move_player(char)
   -- jump
   if btn(2, a) then
-    if char.ay <= 0 then
+    if char.ay == 0 then
       char.ay = char.ay - char.jump
     end
   end
@@ -74,8 +78,8 @@ function move_player(char)
   char.y = char.y + char.ay
 
   -- Boundries
-  if char.y >= 119 then
-    char.y = 119;
+  if char.y >= (127 - 8) then
+    char.y = (127 - 8) ;
     char.ay = 0
   end
 end

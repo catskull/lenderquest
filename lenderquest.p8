@@ -8,6 +8,7 @@ text_color = 7
 
 -- flags
 gamestarted = false
+touching = false
 
 -- globals
 counter = 0
@@ -104,6 +105,7 @@ function move_player(char)
   if btn(2, a) then
     if ay == 0 then
       sfx(1)
+      touching = false
       ay = ay - char.jump
     end
   end
@@ -121,6 +123,10 @@ function move_player(char)
     char.x = x + ax
     char.y = y + ay
   else
+    if (touching == false) then
+      touching = true
+      sfx(2)
+    end
     char.ax = 0
     char.ay = 0
   end

@@ -4,18 +4,22 @@ __lua__
 -- config
 max_players = 1
 max_characters = 1
+game_speed = 1
 text_color = 7
 
 -- flags
-gamestarted = false
+game_started = false
+game_over = false
+game_start_time = 0
+game_end_time = 0
 touching = false
+block_space_flag = 0x1
 
 -- globals
 debug = ""
 counter = 0
-block_waiter = 7
 block_counter = 5
-block_space = 32
+game_speed_counter = 0
 solid_flag = 0
 
 -- character types
@@ -23,13 +27,13 @@ solid_flag = 0
 
 -- start_game
 function start_game()
-  gamestarted = true
+  game_started = true
 
   -- Create player
   create_player(35, 80)
 
   for i = 0, 16 do
-    create_block(i)
+    create_block(2, i)
   end
 end
 
@@ -54,7 +58,7 @@ function create_char(t, x, y)
     c.h = 8
     c.ax = 0
     c.ay = 0
-    c.jump = 4.0
+    c.jump = 5.0
     c.gravity = 0.32
     add(characters, c)
     return c
@@ -63,13 +67,13 @@ function create_char(t, x, y)
   return false
 end
 
-function create_block(x)
+function create_block(t, x)
   local block = {}
   block.x = x
   block.y = 12
   block.w = 8
   block.h = 8
-  block.type = 2
+  block.type = t
   add(blocks, block)
   return block
 end
@@ -80,14 +84,13 @@ end
 
 function move_block(block)
   block.x -= 1
-  if (block.x < -7) then
+  if (block.x < 0) then
     del(blocks, block)
   end
 end
 
 -- draw_character()
 function draw_character(char)
-  --mset(char.x, char.y, char.type)
   spr(char.type, char.x, char.y)
 end
 
@@ -118,14 +121,18 @@ function move_player(char)
   ay = ay + char.gravity
 
   -- Movement
-  y = y + ay
+  x += ax
+  y += ay
 
   -- collision
-  if not solid(x + ax, y + ay) then
+  if not solid(x, y) and 
+      not solid(x + char.w, y) and 
+      not solid(x, y + char.h) and 
+      not solid(x + char.w, y + char.h) then
     char.ax = ax
     char.ay = ay
-    char.x = x + ax
-    char.y = y + ay
+    char.x = x
+    char.y = flr(y + 1)
   else
     if (touching == false) then
       touching = true
@@ -144,19 +151,17 @@ function solid(x, y)
   -- Boundries
   if y >= 127 then
     collision = true
+    end_game(false)
   end
 
   -- Sprites
   if collision == false then
-    col = flr(x / 8) + 1
-    row = flr(y / 8) + 1
+    col = flr(x / 8)
+    row = flr(y / 8)
     local occupant = mget(col, row)
 
     if fget(occupant, solid_flag) then
-      debug = "solid"
       collision = true
-    else
-      debug = "nothing"
     end
   end
 
@@ -182,6 +187,16 @@ function draw_title_screen()
   print("PRESS START", 43, 80, 7)
 end
 
+function end_game(won)
+  game_end_time = time()
+
+  if won then
+    game_over = true
+  else
+    game_over = true
+  end
+end
+
 function blink_text()
   counter += 1
   if (counter > 15) then
@@ -195,26 +210,33 @@ function blink_text()
   end
 end
 
-function draw_blocks()
-  block_waiter -= 1
-  if (block_space < 0) then
-    if (block_counter > 0) then
-      if (block_waiter < 0) then
-        block_counter -= 1
-        create_block(128)
-        block_waiter = 7
-      end
+function generate_map()
+  -- Blocks
+  if count(blocks) < 16 then
+    if block_counter > 0 then
+      create_block(2, 16)
+      block_counter -= 1
+    elseif block_counter < 0 then
+      create_block(5, 16)
+      block_counter += 1
     else
-      block_space = rnd(8) + 16
+      block_space_flag = bxor(block_space_flag, 0x1)
+
+      if block_space_flag == 0x1 then
+        block_counter = flr(rnd(8))
+      else
+        block_counter = flr(rnd(8)) - 16
+      end
     end
-  else
-    block_space -= 1
-    block_counter = rnd(4) + 4
   end
 end
 
 -- _init()
 function _init()
+  game_started = false
+  game_over = false
+  game_start_time = 0
+  game_end_time = 0
   players = {}
   characters = {}
   blocks = {}
@@ -227,23 +249,38 @@ end
 
 -- _update()
 function _update()
-  if (gamestarted) then
+  if game_started and not game_over then
     foreach(characters, move_character)
-    --foreach(blocks, move_block)
-    draw_blocks()
+
+    if game_speed_counter == 0 then
+      game_speed_counter = game_speed
+      foreach(blocks, move_block)
+    else
+      game_speed_counter -= 1
+    end
+
+    generate_map()
+  elseif btn(4) then
+    game_start_time = time()
+    sfx(4)
+    start_game()
   end
 end
 
 -- _draw()
 function _draw()
-  if (gamestarted) then
+  if game_started and not game_over then
     cls()
     map(0, 0, 0, 0, 16, 16)
     foreach(characters, draw_character)
     foreach(blocks, draw_block)
-  elseif (btn(4)) then
-    sfx(4)
-    start_game()
+  elseif game_over then
+    cls()
+    print("GAME OVER", 47, 60, 7)
+
+    if time() - game_end_time > 1.5 then
+      print("PWNED", 55, 70, 7)
+    end
   else
     blink_text()
   end
@@ -382,7 +419,7 @@ __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
 __gff__
-0001ff0101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0001010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 0505050505050505050505050505050500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

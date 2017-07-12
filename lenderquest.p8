@@ -4,8 +4,13 @@ __lua__
 -- config
 max_players = 1
 max_characters = 1
-game_speed = 1
 text_color = 7
+
+-- difficulty
+game_level = 0
+block_mod = 0
+space_mod = 0
+game_speed = 0
 
 -- flags
 game_started = false
@@ -14,13 +19,13 @@ game_start_time = 0
 game_end_time = 0
 touching = false
 block_space_flag = 0x1
+block_counter = 0
+solid_flag = 0
 
 -- globals
 debug = ""
-counter = 0
-block_counter = 5
+blink_counter = 0
 game_speed_counter = 0
-solid_flag = 0
 
 -- character types
 -- 4: player
@@ -197,10 +202,29 @@ function end_game(won)
   end
 end
 
+function next_level()
+  game_level += 1
+
+  -- Game speed ever 10 level
+  if (game_level % 10) == 0 then
+    game_speed -= 1
+  end
+
+  -- Block modifier on even levels
+  if (game_level % 2) == 0 then
+    block_mod -= 1
+  end
+
+  -- Space modifier every five levels
+  if (game_level % 5) == 0 then
+    space_mod += 1
+  end
+end
+
 function blink_text()
-  counter += 1
-  if (counter > 15) then
-    counter = 0
+  blink_counter += 1
+  if (blink_counter > 15) then
+    blink_counter = 0
     print("PRESS START", 43, 80, text_color)
     if (text_color == 7) then
       text_color = 0
@@ -223,9 +247,9 @@ function generate_map()
       block_space_flag = bxor(block_space_flag, 0x1)
 
       if block_space_flag == 0x1 then
-        block_counter = flr(rnd(8))
+        block_counter = flr(rnd(block_mod))
       else
-        block_counter = flr(rnd(8)) - 16
+        block_counter = flr(rnd(space_mod)) - space_mod
       end
     end
   end
@@ -237,6 +261,11 @@ function _init()
   game_over = false
   game_start_time = 0
   game_end_time = 0
+  game_level = 1
+  game_speed = 3
+  block_mod = 25
+  space_mod = 1
+  block_counter = 16
   players = {}
   characters = {}
   blocks = {}
@@ -260,6 +289,11 @@ function _update()
     end
 
     generate_map()
+
+debug = " level: "..game_level.." mod: "..space_mod
+    if (time() - game_start_time) > (5 * game_level) then
+      next_level() 
+    end
   elseif btn(4) then
     game_start_time = time()
     sfx(4)

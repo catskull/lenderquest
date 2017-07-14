@@ -26,6 +26,7 @@ solid_flag = 0
 debug = ""
 blink_counter = 0
 game_speed_counter = 0
+score = 0
 
 -- character types
 -- 4: player
@@ -83,14 +84,30 @@ function create_block(t, x)
   return block
 end
 
-function draw_block(block)
-  mset(block.x, block.y, block.type)
+function create_item(t, x, y)
+  local item = {}
+  item.type = t
+  item.x = x
+  item.y = y
+  item.w = 8
+  item.h = 8
+  add(items, item)
+  return item
 end
 
-function move_block(block)
-  block.x -= 1
-  if (block.x < 0) then
-    del(blocks, block)
+function draw_thing(thing)
+  mset(thing.x, thing.y, thing.type)
+end
+
+function move_thing(thing)
+  thing.x -= 1
+
+  if (thing.x < 0) then
+    if thing.type == 2 then
+      del(blocks, thing)
+    elseif thing.type == 3 then
+      del(items, thing)
+    end
   end
 end
 
@@ -253,6 +270,11 @@ function generate_map()
       end
     end
   end
+
+  -- Items
+  if count(items) < 1 then
+    create_item(3, 16, 5)
+  end
 end
 
 -- _init()
@@ -266,9 +288,11 @@ function _init()
   block_mod = 25
   space_mod = 1
   block_counter = 16
+  score = 0
   players = {}
   characters = {}
   blocks = {}
+  items = {}
 
   cls()
 
@@ -283,14 +307,15 @@ function _update()
 
     if game_speed_counter == 0 then
       game_speed_counter = game_speed
-      foreach(blocks, move_block)
+      foreach(blocks, move_thing)
+      --foreach(items, move_thing)
     else
       game_speed_counter -= 1
     end
 
     generate_map()
 
-debug = " level: "..game_level.." mod: "..space_mod
+debug = " level: "..game_level.." items: "..count(items)
     if (time() - game_start_time) > (5 * game_level) then
       next_level() 
     end
@@ -307,7 +332,9 @@ function _draw()
     cls()
     map(0, 0, 0, 0, 16, 16)
     foreach(characters, draw_character)
-    foreach(blocks, draw_block)
+    foreach(blocks, draw_thing)
+    --foreach(items, draw_thing)
+    print("loans "..score, 90, 10, 7)
   elseif game_over then
     cls()
     print("GAME OVER", 47, 60, 7)
